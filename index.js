@@ -13,7 +13,7 @@ const buttons = document.querySelectorAll(".btn");
 
 buttons.forEach(button => {
 
-    button.addEventListener("click", e => handleClick(e));
+    button.addEventListener("click", e => handleInput(e));
 });
 
 const display = document.querySelector(".display");
@@ -86,13 +86,13 @@ function parseDisplay() {
     }
 }
 
-function handleClick(e) {
-
+function handleInput(e) {
+    
     const button = e.target;
     const classes = button.classList;
 
     // Update display and variables
-    if (classes.contains("number")) {
+    if (classes.contains("number") || exists(parseInt(e.key))) {
 
         // If result is on the display
         if (displayValue == result) {
@@ -105,23 +105,26 @@ function handleClick(e) {
             updateDisplay("");
         }
 
-        updateDisplay(displayValue + button.textContent);
+        const newChar = e.key ? e.key : button.textContent
+        updateDisplay(displayValue + newChar);
     }
-    else if (classes.contains("point")){
+    else if (classes.contains("point") || e.key === "."){
 
         // If no decimal point already or if there's an operator,
         // then allow decimal point
         if (displayValue.indexOf(".") === -1 || exists(operator)) {
 
             // Add decimal point
-            updateDisplay(displayValue + button.textContent);
+            const newChar = e.key ? e.key : button.textContent
+            updateDisplay(displayValue + newChar);
         }
     }
-    else if (classes.contains("operator")) {
+    else if (classes.contains("operator") || operatorRegex.test(e.key)) {
 
-        updateDisplay(displayValue + button.textContent);
+        const newChar = e.key ? e.key : button.textContent
+        updateDisplay(displayValue + newChar);
     }
-    else if (classes.contains("del")) {
+    else if (classes.contains("del") || e.key === "Backspace") {
 
         // If result is on the display
         if (displayValue == result) {
@@ -142,13 +145,13 @@ function handleClick(e) {
             }
         }
     }
-    else if (classes.contains("clear")) {
+    else if (classes.contains("clear") || e.key === "Delete") {
 
         // Display 0 and reset data
         updateDisplay();
         firstOperand = secondOperand = operator = result = null;
     }
-    else if (classes.contains("equal")) {
+    else if (classes.contains("equal") || e.key === "Enter") {
 
         if (exists(firstOperand) && exists(secondOperand) && exists(operator)) {
 
@@ -162,3 +165,6 @@ function handleClick(e) {
     // Extract data from display
     parseDisplay();
 }
+
+// Keyboard support
+document.addEventListener("keydown", e => handleInput(e));
